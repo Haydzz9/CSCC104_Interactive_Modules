@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W08: Queues: FIFO Data Structure</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W07_Stacks_LIFO_Data_Structure.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W10_Recursion_and_Recursive_Problem_Solving.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W08</span>
+    <h1>Queues: FIFO Data Structure</h1>
+    <p>A queue serves the first person who arrived — First In, First Out. Unlike stacks, insertion is at the REAR and removal is at the FRONT. All operations are O(1).</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> BFS (Breadth-First Search) on graphs uses a QUEUE. This is WHY BFS explores nodes level by level — a queue processes them in the order they were discovered, closest first.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🏛️ University Enrollment Queue Simulator</div>
+  <div class="viz-desc">Simulate a FIFO enrollment system. New applicants join the rear; the registrar processes from the front.</div>
+  <div class="viz-area" style="flex-direction:column;gap:.6rem;min-height:180px;overflow-x:auto">
+    <div style="font-size:.75rem;color:#64748B;display:flex;justify-content:space-between;width:100%;max-width:600px">
+      <span>FRONT (dequeue)</span><span>REAR (enqueue)</span>
+    </div>
+    <div id="queue-visual" style="display:flex;gap:6px;align-items:center;min-width:200px;padding:.3rem 0;overflow-x:auto"></div>
+    <div id="queue-counter" style="font-size:.8rem;color:#64748B"></div>
+  </div>
+  <div class="ctrl-row">
+    <input class="viz-input" id="q-name" placeholder="Name" style="width:110px">
+    <button class="btn btn-primary" onclick="qEnqueue()">Enqueue (Apply)</button>
+    <button class="btn btn-danger" onclick="qDequeue()">Dequeue (Process)</button>
+    <button class="btn btn-secondary" onclick="qProcessAll()">Process All</button>
+    <button class="btn btn-outline" onclick="qReset()">↺ Reset</button>
+  </div>
+  <div class="viz-msg msg-info" id="q-msg">Add applicants. Process them in FIFO order — fair, like a real queue.</div>
+</div>
+<script>
+const NAMES=['Maria','Juan','Ana','Pedro','Rosa','Luis','Luz','Carlo','Bea','Rico'];
+let queue=[],qId=1,processed=0;
+const COLORS=['#1F3864','#17A589','#7C3AED','#DB2777','#D97706','#2E75B6'];
+function renderQ(){
+  const v=document.getElementById('queue-visual');
+  if(queue.length===0){v.innerHTML='<div style="color:#94A3B8">Queue is empty</div>';document.getElementById('queue-counter').textContent='';return;}
+  v.innerHTML=queue.map((p,i)=>{
+    const isFront=i===0;
+    const bg=COLORS[p.color];
+    return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0">
+      <div style="background:${bg};color:#fff;border-radius:8px;padding:.4rem .55rem;text-align:center;font-size:.8rem;font-weight:700;animation:pop .25s ease;min-width:60px">
+        ${p.name}<span style="display:block;font-size:.6rem;opacity:.7">#${p.id}</span>
+      </div>
+      ${isFront?'<span style="font-size:.6rem;color:#EF4444;font-weight:700">FRONT</span>':''}
+    </div>`;
+  }).join('<div style="color:#94A3B8;font-size:1.1rem;flex-shrink:0;margin:0 -2px">→</div>');
+  document.getElementById('queue-counter').textContent=`Waiting: ${queue.length} | Processed: ${processed}`;
+}
+function qEnqueue(){
+  const name=document.getElementById('q-name').value.trim()||NAMES[Math.floor(Math.random()*NAMES.length)];
+  if(queue.length>=8){document.getElementById('q-msg').className='viz-msg msg-err';document.getElementById('q-msg').textContent='Queue is full! Please wait for processing.';return;}
+  queue.push({name,id:qId++,color:qId%COLORS.length});renderQ();
+  document.getElementById('q-msg').className='viz-msg msg-ok';
+  document.getElementById('q-msg').textContent=`${name} joined at REAR. Waiting position: ${queue.length}. O(1) enqueue.`;
+}
+async function qDequeue(){
+  if(queue.length===0){document.getElementById('q-msg').className='viz-msg msg-err';document.getElementById('q-msg').textContent='Queue is empty — nobody to process!';return;}
+  const p=queue.shift();processed++;renderQ();
+  document.getElementById('q-msg').className='viz-msg msg-ok';
+  document.getElementById('q-msg').textContent=`Processing ${p.name} (#${p.id}) — FIRST to arrive, FIRST served! O(1) dequeue.`;
+}
+async function qProcessAll(){
+  while(queue.length>0){await qDequeue();await new Promise(r=>setTimeout(r,500));}
+  document.getElementById('q-msg').textContent=`All ${processed} applicants processed in arrival order!`;
+}
+function qReset(){queue=[];qId=1;processed=0;renderQ();document.getElementById('q-msg').className='viz-msg msg-info';document.getElementById('q-msg').textContent='Reset! Add applicants to begin.';}
+document.addEventListener('DOMContentLoaded',()=>{['Maria','Juan','Ana'].forEach(n=>{queue.push({name:n,id:qId++,color:qId%COLORS.length});});renderQ();});
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🏫</div>
+  <div class="rw-name">University Enrollment System</div>
+  <div class="rw-desc">Students submit enrollment applications in order. The registrar processes them FIFO — first to apply is first to be enrolled. This is exactly the SRS-07 EnrollmentQueue you built!</div>
+  <div class="rw-how">🔧 Queue: enqueue on application, dequeue on processing</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🖨️</div>
+  <div class="rw-name">Printer Spooler</div>
+  <div class="rw-desc">When multiple users send documents to one printer, jobs queue up. The printer processes them FIFO — first document sent is first printed. Job priority can be added for a priority queue.</div>
+  <div class="rw-how">🔧 FIFO queue of print jobs</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🚦</div>
+  <div class="rw-name">Operating System CPU Scheduling</div>
+  <div class="rw-desc">Round-Robin scheduling (used in Linux, Windows) puts processes in a queue. Each gets a time slice; if not done, it rejoins the rear. Fairness guaranteed by FIFO.</div>
+  <div class="rw-how">🔧 Queue for fair process scheduling</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📦</div>
+  <div class="rw-name">Online Order Processing (Shopee/Lazada)</div>
+  <div class="rw-desc">Orders are processed in the sequence received. Warehouse systems use queues to manage picking, packing, and shipping — ensuring no order gets skipped or unfairly delayed.</div>
+  <div class="rw-how">🔧 Queue for order fulfillment pipeline</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "Which scenario is best served by a QUEUE rather than a stack?", "opts": ["Browser back button", "Calculator undo history", "Hospital emergency room (same priority patients)", "Parenthesis matching in a compiler"], "ans": 2, "exp": "A queue serves patients FIFO \u2014 first to arrive, first to be seen. This is fair for same-priority cases. Stacks serve LIFO \u2014 the LAST item is served first. Browser back, undo, and bracket matching are all LIFO scenarios requiring stacks."}, {"q": "Why does BFS graph traversal use a QUEUE?", "opts": ["Queues are faster than stacks", "A queue ensures nodes are explored in ARRIVAL ORDER, giving level-by-level traversal and shortest paths", "BFS was invented with queues in mind", "Stacks are not allowed in graph algorithms"], "ans": 1, "exp": "BFS discovers neighboring nodes and adds them to a queue. When dequeued (FIFO), they are processed before their neighbors \u2014 ensuring level 1 nodes are fully explored before level 2. This guarantees the SHORTEST PATH to every node in an unweighted graph. Using a stack instead gives DFS."}, {"q": "A circular array queue uses (rear + 1) % MAX to wrap around. Why?", "opts": ["To avoid negative indices", "After the last slot, the next position wraps back to index 0, reusing emptied front slots", "To sort the queue automatically", "Modulo makes enqueue O(1)"], "ans": 1, "exp": "A naive array queue has front and rear drifting rightward over time. After many enqueue/dequeue operations, the rear reaches the end while slots at the front are empty but 'inaccessible.' The modulo trick wraps rear back to 0 when it reaches MAX, reusing those freed front slots \u2014 no wasted space."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

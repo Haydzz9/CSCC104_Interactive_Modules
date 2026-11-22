@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — Interactive DSA Learning Modules</title>
+<style>
+
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+
+.index-hero{background:var(--navy);color:#fff;padding:2.5rem 1.5rem;text-align:center}
+.index-hero h1{font-size:2rem;margin-bottom:.5rem}
+.index-hero p{color:#76D7C4;max-width:600px;margin:.5rem auto}
+.topics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem;padding:1.5rem;max-width:1100px;margin:0 auto}
+.topic-card{display:flex;flex-direction:column;background:#fff;border-radius:12px;padding:1.1rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);text-decoration:none;color:inherit;
+  transition:.18s;cursor:pointer}
+.topic-card:hover{transform:translateY(-3px);box-shadow:0 6px 20px #0002;border-top-color:var(--navy)}
+.tc-tag{font-size:.72rem;background:var(--teal);color:#fff;padding:.15rem .5rem;border-radius:4px;
+  display:inline-block;margin-bottom:.5rem;font-weight:700;width:fit-content}
+.tc-title{font-weight:700;color:var(--navy);flex:1;line-height:1.35;font-size:.95rem}
+.tc-arrow{text-align:right;color:var(--teal);margin-top:.5rem;font-weight:700}
+.stats{display:flex;gap:2rem;justify-content:center;padding:1rem;background:#F8FAFC;
+  flex-wrap:wrap;border-bottom:1px solid #E2E8F0}
+.stat{text-align:center}
+.stat-num{font-size:1.8rem;font-weight:800;color:var(--navy)}
+.stat-lbl{font-size:.8rem;color:var(--gray)}
+</style>
+</head>
+<body>
+<div class="index-hero">
+  <div style="font-size:.8rem;color:#76D7C4;margin-bottom:.5rem">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+  <h1>🎓 CSCC 104: Interactive DSA Learning Modules</h1>
+  <p>16 interactive topics — visualizers, real-world applications, and quizzes. Click any topic to start.</p>
+</div>
+<div class="stats">
+  <div class="stat"><div class="stat-num">16</div><div class="stat-lbl">Interactive Topics</div></div>
+  <div class="stat"><div class="stat-num">16</div><div class="stat-lbl">Visualizers</div></div>
+  <div class="stat"><div class="stat-num">64+</div><div class="stat-lbl">Real-World Examples</div></div>
+  <div class="stat"><div class="stat-num">48</div><div class="stat-lbl">Quiz Questions</div></div>
+</div>
+<div class="topics-grid"><a href="CSCC104_W01_Introduction_to_Data_Structures_and_Algo.html" class="topic-card">
+          <div class="tc-tag">W01</div>
+          <div class="tc-title">Intro to DSA</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W02_C_Fundamentals_Pointers,_Structs_and_Mem.html" class="topic-card">
+          <div class="tc-tag">W02</div>
+          <div class="tc-title">C Fundamentals</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W03_Algorithm_Analysis_Big-O_Complexity.html" class="topic-card">
+          <div class="tc-tag">W03</div>
+          <div class="tc-title">Big-O Analysis</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W04_Arrays_and_Strings_in_C.html" class="topic-card">
+          <div class="tc-tag">W04</div>
+          <div class="tc-title">Arrays</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W05_Singly_Linked_Lists.html" class="topic-card">
+          <div class="tc-tag">W05</div>
+          <div class="tc-title">Singly Linked Lists</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W06_Doubly_and_Circular_Linked_Lists.html" class="topic-card">
+          <div class="tc-tag">W06</div>
+          <div class="tc-title">Doubly Linked Lists</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W07_Stacks_LIFO_Data_Structure.html" class="topic-card">
+          <div class="tc-tag">W07</div>
+          <div class="tc-title">Stacks</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W08_Queues_FIFO_Data_Structure.html" class="topic-card">
+          <div class="tc-tag">W08</div>
+          <div class="tc-title">Queues</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W10_Recursion_and_Recursive_Problem_Solving.html" class="topic-card">
+          <div class="tc-tag">W10</div>
+          <div class="tc-title">Recursion</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W11_Binary_Trees_and_Tree_Traversals.html" class="topic-card">
+          <div class="tc-tag">W11</div>
+          <div class="tc-title">Binary Trees</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W12_Binary_Search_Trees_(BST).html" class="topic-card">
+          <div class="tc-tag">W12</div>
+          <div class="tc-title">BST</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W13_Heaps_and_Priority_Queues.html" class="topic-card">
+          <div class="tc-tag">W13</div>
+          <div class="tc-title">Heaps</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W14_Sorting_Algorithms.html" class="topic-card">
+          <div class="tc-tag">W14</div>
+          <div class="tc-title">Sorting</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W15_Searching_and_Hash_Tables.html" class="topic-card">
+          <div class="tc-tag">W15</div>
+          <div class="tc-title">Searching & Hashing</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W16_Graphs_BFS_and_DFS_Traversal.html" class="topic-card">
+          <div class="tc-tag">W16</div>
+          <div class="tc-title">Graphs</div>
+          <div class="tc-arrow">→</div>
+        </a>
+<a href="CSCC104_W17_Dynamic_Programming_and_Greedy_Algorithm.html" class="topic-card">
+          <div class="tc-tag">W17</div>
+          <div class="tc-title">DP & Greedy</div>
+          <div class="tc-arrow">→</div>
+        </a></div>
+<footer style="text-align:center;padding:1.5rem;color:#94A3B8;font-size:.82rem;border-top:1px solid #E2E8F0;margin-top:1rem">
+  CSCC 104 — Data Structures and Algorithms in C &nbsp;·&nbsp; DMMMSU-SLUC &nbsp;·&nbsp; Haydee D. Limson, MIS
+</footer>
+</body>
+</html>

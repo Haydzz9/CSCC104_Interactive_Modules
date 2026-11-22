@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W15: Searching & Hash Tables</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W14_Sorting_Algorithms.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W16_Graphs_BFS_and_DFS_Traversal.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W15</span>
+    <h1>Searching & Hash Tables</h1>
+    <p>Binary search achieves O(log n) on sorted arrays by eliminating half the search space each step. Hash tables achieve O(1) average lookup by mapping keys directly to array positions using a hash function.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> Hash tables are the most powerful lookup structure — O(1) average for insert, search, and delete. The trade-off: no sorted order. BST gives O(log n) but maintains order. Choose based on whether you need range queries.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🔍 Hash Table with Chaining Visualizer</div>
+  <div class="viz-desc">See how student IDs are mapped to buckets. Watch collision chaining in action.</div>
+  <div style="margin-bottom:.7rem;display:flex;gap:.7rem;align-items:center;flex-wrap:wrap">
+    <span style="font-size:.82rem;color:#64748B">Table size: 11 (prime) | Hash: id % 11</span>
+    <span id="ht-stats" style="font-size:.78rem;background:#EFF6FF;padding:.2rem .6rem;border-radius:5px;color:#1E40AF"></span>
+  </div>
+  <div class="viz-area" id="ht-area" style="flex-direction:column;gap:4px;padding:.7rem;min-height:240px;background:#F8FAFC;justify-content:flex-start;align-items:stretch">
+    <div id="ht-buckets" style="display:flex;flex-direction:column;gap:4px"></div>
+  </div>
+  <div class="ctrl-row">
+    <input type="number" class="viz-input" id="ht-id" placeholder="Student ID" value="2024001">
+    <button class="btn btn-primary" onclick="htInsert()">Insert</button>
+    <button class="btn btn-secondary" onclick="htSearch()">Search</button>
+    <button class="btn btn-danger" onclick="htDelete()">Delete</button>
+    <button class="btn btn-outline" onclick="htClear()">Clear</button>
+  </div>
+  <div class="viz-msg msg-info" id="ht-msg">Enter a student ID to insert. Watch which bucket it maps to.</div>
+</div>
+<script>
+const HT_SIZE=11;
+let ht=Array.from({length:HT_SIZE},()=>[]);
+let htHighlight=-1,htChainHL=null;
+function htHash(id){return id%HT_SIZE;}
+function renderHT(){
+  const filled=ht.filter(b=>b.length>0).length;
+  const total=ht.reduce((s,b)=>s+b.length,0);
+  document.getElementById('ht-stats').textContent=`Items: ${total} | Load: ${(total/HT_SIZE).toFixed(2)} | Collisions: ${ht.filter(b=>b.length>1).length} buckets`;
+  document.getElementById('ht-buckets').innerHTML=ht.map((bucket,i)=>{
+    const isHL=i===htHighlight;
+    const bg=isHL?'#FEF9C3':'#fff';
+    const border=isHL?'2px solid #F59E0B':'1.5px solid #E2E8F0';
+    const items=bucket.map((id,j)=>{
+      const isChainHL=htChainHL&&htChainHL.bucket===i&&htChainHL.idx===j;
+      return `<div style="background:${isChainHL?'#22C55E':'#2E75B6'};color:#fff;border-radius:5px;padding:.2rem .5rem;font-size:.75rem;font-family:monospace;animation:pop .2s">${id}</div>`;
+    });
+    const chain=items.length>0?items.join('<div style="font-size:.8rem;color:#94A3B8">→</div>'):'<span style="color:#CBD5E1;font-size:.75rem">empty</span>';
+    return `<div style="display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:${bg};border:${border};border-radius:7px">
+      <div style="width:32px;text-align:right;font-size:.75rem;font-weight:700;color:${isHL?'#92400E':'#64748B'}">B[${i}]</div>
+      <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">${chain}</div>
+    </div>`;
+  }).join('');
+}
+function htInsert(){
+  const id=parseInt(document.getElementById('ht-id').value);
+  if(isNaN(id)){return;}
+  const b=htHash(id);
+  if(ht[b].includes(id)){document.getElementById('ht-msg').className='viz-msg msg-err';document.getElementById('ht-msg').textContent=`ID ${id} already exists in bucket ${b}!`;return;}
+  ht[b].push(id);htHighlight=b;htChainHL=null;renderHT();
+  document.getElementById('ht-msg').className='viz-msg msg-ok';
+  document.getElementById('ht-msg').textContent=`Inserted ${id}. Hash: ${id} % ${HT_SIZE} = ${b}. ${ht[b].length>1?`Collision! Chain length now ${ht[b].length}.`:'No collision — direct bucket insert. O(1)!'}`;
+}
+function htSearch(){
+  const id=parseInt(document.getElementById('ht-id').value);
+  if(isNaN(id)){return;}
+  const b=htHash(id);
+  const idx=ht[b].indexOf(id);
+  htHighlight=b;
+  if(idx>=0){htChainHL={bucket:b,idx};renderHT();document.getElementById('ht-msg').className='viz-msg msg-ok';document.getElementById('ht-msg').textContent=`Found ${id} in bucket ${b} at chain position ${idx}. Comparisons: ${idx+1}. ${idx===0?'O(1) direct hit!':'O(k) chain search where k='+ht[b].length+'.'}`;}
+  else{htChainHL=null;renderHT();document.getElementById('ht-msg').className='viz-msg msg-err';document.getElementById('ht-msg').textContent=`${id} not in bucket ${b} (hash=${b}). Checked ${ht[b].length} chain entries.`;}
+}
+function htDelete(){
+  const id=parseInt(document.getElementById('ht-id').value);
+  const b=htHash(id);
+  const idx=ht[b].indexOf(id);
+  if(idx<0){document.getElementById('ht-msg').className='viz-msg msg-err';document.getElementById('ht-msg').textContent=`${id} not found.`;return;}
+  ht[b].splice(idx,1);htHighlight=b;htChainHL=null;renderHT();
+  document.getElementById('ht-msg').className='viz-msg msg-ok';
+  document.getElementById('ht-msg').textContent=`Deleted ${id} from bucket ${b}. O(1) average.`;
+}
+function htClear(){ht=Array.from({length:HT_SIZE},()=>[]);htHighlight=-1;htChainHL=null;renderHT();document.getElementById('ht-msg').className='viz-msg msg-info';document.getElementById('ht-msg').textContent='Cleared!';}
+document.addEventListener('DOMContentLoaded',()=>{[2024001,2024012,2024023,2024007,2024018].forEach(id=>{const b=htHash(id);ht[b].push(id);});renderHT();});
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🔐</div>
+  <div class="rw-name">Password Storage</div>
+  <div class="rw-desc">Websites store hashed passwords (SHA-256, bcrypt) in hash tables. When you log in, your password is hashed and compared to the stored hash — never stored in plain text. O(1) lookup.</div>
+  <div class="rw-how">🔧 Hash function for secure password comparison</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📚</div>
+  <div class="rw-name">Python & JavaScript Dictionaries</div>
+  <div class="rw-desc">Python dict and JavaScript Map are hash tables. `student['name']` is O(1). These are among the most-used data structures in all of programming — used millions of times per second worldwide.</div>
+  <div class="rw-how">🔧 Hash table for O(1) key-value storage</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🧬</div>
+  <div class="rw-name">DNA Pattern Matching</div>
+  <div class="rw-desc">Finding a 20-base DNA pattern in a 3-billion-base genome uses Rabin-Karp: hash the pattern, slide a window computing rolling hash values, compare only when hashes match — O(n) instead of O(n×m) brute force.</div>
+  <div class="rw-how">🔧 Rolling hash for efficient pattern matching</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🌐</div>
+  <div class="rw-name">DNS Resolution</div>
+  <div class="rw-desc">Typing 'google.com' triggers a DNS lookup: hash the domain name, find the IP in the DNS hash table. Billions of lookups happen per day — only possible in O(1) with hash tables.</div>
+  <div class="rw-how">🔧 Hash table for domain-to-IP mapping</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "Binary search requires O(log n) comparisons. For n = 1,000,000 elements, the maximum comparisons needed are approximately:", "opts": ["1,000,000", "500,000", "20", "1"], "ans": 2, "exp": "Binary search halves the search space each step. log\u2082(1,000,000) \u2248 20. After 20 comparisons, at most 1 element remains. This is the power of logarithmic algorithms \u2014 they barely slow down as data grows. Doubling n to 2,000,000 only adds ONE more comparison."}, {"q": "A hash table with load factor 0.9 (90% full) performs worse than one at 0.5. Why?", "opts": ["Tables get physically heavier", "Higher load factor means more collisions \u2014 chains grow longer, degrading O(1) toward O(n)", "Hash functions break at high load", "The table sorts itself at high load"], "ans": 1, "exp": "Load factor \u03b1 = items/capacity. At \u03b1=0.9, almost every bucket is occupied; new insertions often collide, creating long chains. Average chain length \u2248 \u03b1 for uniform hashing. At \u03b1=0.5: average chain length 0.5 (most lookups need 1 comparison). At \u03b1=0.9: average 0.9 comparisons... but worst-case grows. Resize when \u03b1 exceeds 0.75."}, {"q": "What is the fundamental limitation of hash tables compared to BSTs?", "opts": ["Hash tables are slower", "Hash tables provide no sorted order \u2014 range queries require scanning all buckets", "Hash tables use more memory", "Hash tables cannot store strings"], "ans": 1, "exp": "'Find all students with GWA between 1.5 and 2.0' \u2014 easy with BST (O(log n + k) where k=results), impossible with hash table efficiently (must scan all buckets). Hash tables sacrifice ORDER for speed. Choose hash table for point lookups (find ID 2024001); choose BST when you need sorted traversal or range queries."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

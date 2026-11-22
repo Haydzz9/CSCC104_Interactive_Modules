@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W14: Sorting Algorithms</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W13_Heaps_and_Priority_Queues.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W15_Searching_and_Hash_Tables.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W14</span>
+    <h1>Sorting Algorithms</h1>
+    <p>Sorting is the most-studied problem in computer science. From O(n²) bubble sort to O(n log n) merge sort — the right algorithm can make a system 10,000× faster on large datasets.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> Merge Sort guarantees O(n log n) always. Quick Sort averages O(n log n) but is usually faster in practice due to cache behavior. Tim Sort (Python's sort) combines Insertion Sort + Merge Sort for real-world data.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">📊 Sorting Algorithm Race</div>
+  <div class="viz-desc">Watch sorting algorithms sort the same array and count their comparisons.</div>
+  <div style="margin-bottom:.7rem;display:flex;gap:.8rem;flex-wrap:wrap;align-items:center">
+    <label style="font-size:.85rem">Algorithm:
+      <select id="sort-algo" style="margin-left:.3rem;border:2px solid #CBD5E1;border-radius:6px;padding:.3rem .5rem">
+        <option value="bubble">Bubble Sort O(n²)</option>
+        <option value="insertion">Insertion Sort O(n²)/O(n)</option>
+        <option value="selection">Selection Sort O(n²)</option>
+        <option value="merge">Merge Sort O(n log n)</option>
+        <option value="quick">Quick Sort O(n log n) avg</option>
+      </select>
+    </label>
+    <label style="font-size:.85rem">Size: <input type="range" min="6" max="20" value="12" id="sort-size" style="width:80px"></label>
+  </div>
+  <div class="viz-area" id="sort-area" style="align-items:flex-end;padding:.5rem 1rem .3rem;gap:4px;min-height:180px;background:#0F172A;border:none;border-radius:12px">
+    <div id="sort-bars" style="display:flex;gap:3px;align-items:flex-end;width:100%;height:160px"></div>
+  </div>
+  <div id="sort-stats" style="display:flex;gap:1rem;margin:.5rem 0;font-size:.8rem;flex-wrap:wrap">
+    <span id="sort-cmps" style="background:#EFF6FF;padding:.2rem .6rem;border-radius:5px;color:#1E40AF">Comparisons: 0</span>
+    <span id="sort-swps" style="background:#F0FDF4;padding:.2rem .6rem;border-radius:5px;color:#065F46">Swaps/Writes: 0</span>
+    <span id="sort-step" style="background:#FEF9C3;padding:.2rem .6rem;border-radius:5px;color:#92400E">Step: 0</span>
+  </div>
+  <div class="ctrl-row">
+    <button class="btn btn-primary" onclick="startSort()">▶ Sort</button>
+    <button class="btn btn-warn" onclick="generateArr()">🔀 Shuffle</button>
+    <button class="btn btn-secondary" onclick="generateArr('sorted')">📈 Already Sorted</button>
+    <button class="btn btn-outline" onclick="generateArr('reverse')">📉 Reverse Sorted</button>
+  </div>
+  <div class="viz-msg msg-info" id="sort-msg">Choose an algorithm and press Sort to see it in action.</div>
+</div>
+<script>
+let sortArr=[],sorting=false,comparisons=0,swaps=0,step=0;
+function generateArr(type='random'){
+  const n=parseInt(document.getElementById('sort-size').value);
+  if(type==='sorted')sortArr=Array.from({length:n},(_,i)=>i+1);
+  else if(type==='reverse')sortArr=Array.from({length:n},(_,i)=>n-i);
+  else sortArr=Array.from({length:n},()=>Math.floor(Math.random()*n)+1);
+  comparisons=0;swaps=0;step=0;updateStats();renderBars([],[]);
+  document.getElementById('sort-msg').className='viz-msg msg-info';
+  document.getElementById('sort-msg').textContent='Array ready! Press Sort to begin.';
+}
+function renderBars(active=[],sorted=[]){
+  const n=sortArr.length,maxH=150;
+  const maxV=Math.max(...sortArr);
+  document.getElementById('sort-bars').innerHTML=sortArr.map((v,i)=>{
+    const h=Math.max(8,Math.round(v/maxV*maxH));
+    const isActive=active.includes(i);
+    const isSorted=sorted.includes(i);
+    const bg=isSorted?'#22C55E':isActive?'#F59E0B':'#2E75B6';
+    return `<div style="flex:1;background:${bg};height:${h}px;border-radius:3px 3px 0 0;transition:.08s;display:flex;align-items:flex-end;justify-content:center">
+      <span style="font-size:9px;color:rgba(255,255,255,.7);padding-bottom:2px">${n<=16?v:''}</span>
+    </div>`;
+  }).join('');
+}
+function updateStats(){
+  document.getElementById('sort-cmps').textContent=`Comparisons: ${comparisons}`;
+  document.getElementById('sort-swps').textContent=`Swaps/Writes: ${swaps}`;
+  document.getElementById('sort-step').textContent=`Step: ${step}`;
+}
+function delay(ms){return new Promise(r=>setTimeout(r,ms));}
+async function startSort(){
+  if(sorting)return;sorting=true;
+  comparisons=0;swaps=0;step=0;
+  const arr=[...sortArr];
+  const algo=document.getElementById('sort-algo').value;
+  const n=arr.length;
+  const sorted=[];
+  const SPEED=120;
+  if(algo==='bubble'){
+    for(let i=0;i<n-1;i++){
+      for(let j=0;j<n-i-1;j++){
+        comparisons++;step++;sortArr=[...arr];renderBars([j,j+1],sorted);updateStats();await delay(SPEED);
+        if(arr[j]>arr[j+1]){[arr[j],arr[j+1]]=[arr[j+1],arr[j]];swaps++;sortArr=[...arr];renderBars([j,j+1],sorted);updateStats();await delay(SPEED);}
+      }
+      sorted.push(n-1-i);
+    }
+    sorted.push(0);
+  } else if(algo==='insertion'){
+    sorted.push(0);
+    for(let i=1;i<n;i++){
+      let key=arr[i],j=i-1;
+      while(j>=0){comparisons++;step++;sortArr=[...arr];renderBars([j,j+1],sorted);updateStats();await delay(SPEED);if(arr[j]>key){arr[j+1]=arr[j];swaps++;j--;}else break;}
+      arr[j+1]=key;sortArr=[...arr];sorted.push(i);renderBars([j+1],sorted);updateStats();await delay(SPEED);
+    }
+  } else if(algo==='selection'){
+    for(let i=0;i<n;i++){
+      let minIdx=i;
+      for(let j=i+1;j<n;j++){comparisons++;step++;renderBars([minIdx,j],sorted);await delay(SPEED);}
+      if(minIdx!==i){[arr[i],arr[minIdx]]=[arr[minIdx],arr[i]];swaps++;}
+      sortArr=[...arr];sorted.push(i);renderBars([],sorted);updateStats();await delay(SPEED);
+    }
+  } else if(algo==='merge'){
+    async function merge(lo,hi){
+      if(lo>=hi)return;
+      const mid=Math.floor((lo+hi)/2);
+      await merge(lo,mid);await merge(mid+1,hi);
+      const L=arr.slice(lo,mid+1),R=arr.slice(mid+1,hi+1);
+      let i=0,j=0,k=lo;
+      while(i<L.length&&j<R.length){comparisons++;step++;
+        if(L[i]<=R[j])arr[k++]=L[i++];else arr[k++]=R[j++];swaps++;
+        sortArr=[...arr];renderBars(Array.from({length:hi-lo+1},(_,x)=>lo+x),sorted);updateStats();await delay(SPEED);
+      }
+      while(i<L.length){arr[k++]=L[i++];swaps++;sortArr=[...arr];renderBars([],sorted);updateStats();await delay(SPEED/2);}
+      while(j<R.length){arr[k++]=R[j++];swaps++;sortArr=[...arr];renderBars([],sorted);updateStats();await delay(SPEED/2);}
+    }
+    await merge(0,n-1);Array.from({length:n},(_,i)=>sorted.push(i));
+  } else if(algo==='quick'){
+    async function partition(lo,hi){
+      const pivot=arr[hi];let i=lo-1;
+      for(let j=lo;j<hi;j++){comparisons++;step++;sortArr=[...arr];renderBars([j,hi],sorted);updateStats();await delay(SPEED);
+        if(arr[j]<=pivot){i++;[arr[i],arr[j]]=[arr[j],arr[i]];swaps++;}
+      }
+      [arr[i+1],arr[hi]]=[arr[hi],arr[i+1]];swaps++;return i+1;
+    }
+    async function qs(lo,hi){
+      if(lo>=hi){if(lo===hi)sorted.push(lo);return;}
+      const p=await partition(lo,hi);sorted.push(p);sortArr=[...arr];renderBars([p],sorted);updateStats();await delay(SPEED);
+      await qs(lo,p-1);await qs(p+1,hi);
+    }
+    await qs(0,n-1);
+  }
+  sortArr=[...arr];renderBars([],Array.from({length:n},(_,i)=>i));updateStats();sorting=false;
+  document.getElementById('sort-msg').className='viz-msg msg-ok';
+  document.getElementById('sort-msg').textContent=`Done! ${algo.charAt(0).toUpperCase()+algo.slice(1)} Sort: ${comparisons} comparisons, ${swaps} swaps. Try different algorithms on the same array!`;
+}
+document.addEventListener('DOMContentLoaded',()=>generateArr());
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🛒</div>
+  <div class="rw-name">E-Commerce Search Results</div>
+  <div class="rw-desc">When you search 'laptop' on Lazada and sort by Price: Low to High, the server sorts thousands of products. Merge sort ensures consistent O(n log n) performance even during peak sale events.</div>
+  <div class="rw-how">🔧 Merge sort for stable, consistent performance</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🏆</div>
+  <div class="rw-name">Leaderboard Rankings</div>
+  <div class="rw-desc">Game leaderboards with millions of players update rankings after every match. Quick sort re-sorts the array efficiently. For the top-10 display, a heap (O(n + k log n)) is even faster.</div>
+  <div class="rw-how">🔧 Quick sort for in-memory ranking</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🧬</div>
+  <div class="rw-name">Genome Sequencing</div>
+  <div class="rw-desc">Sorting DNA fragments (reads) by their starting position before assembly. Radix sort processes 3-billion-character genomes in O(n) — faster than O(n log n) comparison sorts.</div>
+  <div class="rw-how">🔧 Radix sort for linear-time DNA sorting</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">✈️</div>
+  <div class="rw-name">Airline Seat Assignment</div>
+  <div class="rw-desc">Boarding in window-then-aisle order (Steffen method) reduces boarding time by 50%. Passengers are sorted by seat position before boarding — a real O(n log n) optimization with measurable real-world impact.</div>
+  <div class="rw-how">🔧 Insertion sort on nearly-sorted boarding data</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "Merge Sort always achieves O(n log n) while Quick Sort has O(n\u00b2) worst case. When might Quick Sort still be preferred?", "opts": ["Quick Sort is never preferred", "Quick Sort is in-place (O(1) extra space) and has better cache behavior, making it faster in practice for most inputs", "Quick Sort is easier to implement", "Merge Sort is O(n\u00b3) in the worst case"], "ans": 1, "exp": "Merge Sort needs O(n) extra memory for the temporary arrays. Quick Sort sorts in-place (O(log n) stack only). On modern CPUs, cache performance matters: Quick Sort accesses array elements in patterns that CPUs cache efficiently. In practice on random data, Quick Sort is often 2-3\u00d7 faster than Merge Sort despite identical asymptotic complexity."}, {"q": "Insertion Sort has O(n) best case. What input achieves this?", "opts": ["Random array", "Reverse-sorted array", "Already sorted array", "Array with all identical elements"], "ans": 2, "exp": "For an already-sorted array, Insertion Sort's inner while loop immediately exits (no element needs to shift). Each of the n-1 iterations does exactly 1 comparison. Total: O(n). This is why Tim Sort (Python/Java's default) uses Insertion Sort for small subarrays that are nearly sorted \u2014 it beats merge sort on almost-sorted data."}, {"q": "What does 'stable sort' mean and why does it matter?", "opts": ["The sort doesn't crash", "Equal elements maintain their original relative order after sorting", "The sort runs in constant time", "The sort works on all data types"], "ans": 1, "exp": "Example: sort students by GWA, then by name. If sort-by-name is stable, students with the same name maintain their GWA order. An unstable sort could scramble the GWA order. Merge Sort is stable; Quick Sort is NOT. For multi-key sorting, stability is essential \u2014 otherwise your secondary sort gets destroyed."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

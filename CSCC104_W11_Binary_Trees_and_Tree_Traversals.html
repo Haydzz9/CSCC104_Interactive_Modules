@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W11: Binary Trees and Tree Traversals</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W10_Recursion_and_Recursive_Problem_Solving.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W12_Binary_Search_Trees_(BST).html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W11</span>
+    <h1>Binary Trees and Tree Traversals</h1>
+    <p>Binary trees organize data hierarchically — each node has at most two children. Tree traversals visit every node in a specific order: inorder (sorted), preorder (serialize), postorder (delete safely).</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> The height of a binary tree determines the cost of all tree operations. A balanced tree has height O(log n); a skewed tree degrades to O(n). Balance is everything in tree data structures.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🌲 Binary Tree Traversal Visualizer</div>
+  <div class="viz-desc">Build a tree and watch it being traversed step by step. Each traversal visits nodes in a different order.</div>
+  <div class="viz-area" id="tree-area" style="background:#0F172A;min-height:240px;padding:.5rem;border:none;border-radius:12px">
+    <svg id="tree-svg" width="620" height="220" style="max-width:100%"></svg>
+  </div>
+  <div id="trav-order" style="font-size:.82rem;background:#1E293B;color:#94A3B8;padding:.4rem .7rem;border-radius:7px;margin:.5rem 0;font-family:monospace;min-height:28px"></div>
+  <div class="ctrl-row">
+    <button class="btn btn-primary" onclick="animTraversal('inorder')">Inorder (L→Root→R)</button>
+    <button class="btn btn-secondary" onclick="animTraversal('preorder')">Preorder (Root→L→R)</button>
+    <button class="btn btn-warn" onclick="animTraversal('postorder')">Postorder (L→R→Root)</button>
+    <button class="btn btn-outline" onclick="resetTreeAnim()">↺ Reset</button>
+  </div>
+  <div class="viz-msg msg-info" id="tree-msg">Press a traversal button to see it animated.</div>
+</div>
+<script>
+const TREE=[
+  {v:50,x:310,y:30},{v:30,x:180,y:100},{v:70,x:440,y:100},
+  {v:20,x:110,y:175},{v:40,x:250,y:175},{v:60,x:375,y:175},{v:80,x:510,y:175}
+];
+const TREE_EDGES=[[0,1],[0,2],[1,3],[1,4],[2,5],[2,6]];
+let treeHL=[];
+function renderTree(){
+  const svg=document.getElementById('tree-svg');
+  let html='';
+  TREE_EDGES.forEach(([p,c])=>{html+=`<line x1="${TREE[p].x}" y1="${TREE[p].y}" x2="${TREE[c].x}" y2="${TREE[c].y}" stroke="#334155" stroke-width="2"/>`;});
+  TREE.forEach((n,i)=>{
+    const hl=treeHL.includes(i);
+    const isLast=treeHL[treeHL.length-1]===i;
+    const fill=isLast?'#F59E0B':hl?'#22C55E':'#334155';
+    html+=`<circle cx="${n.x}" cy="${n.y}" r="22" fill="${fill}" stroke="${hl?'#15803D':'#475569'}" stroke-width="2"/>
+    <text x="${n.x}" y="${n.y+5}" text-anchor="middle" fill="#fff" font-weight="bold" font-size="15">${n.v}</text>`;
+    if(hl){const ord=treeHL.indexOf(i)+1;html+=`<circle cx="${n.x+17}" cy="${n.y-17}" r="9" fill="#1F3864"/><text x="${n.x+17}" y="${n.y-13}" text-anchor="middle" fill="#76D7C4" font-size="9" font-weight="bold">${ord}</text>`;}
+  });
+  svg.innerHTML=html;
+}
+function getOrder(type){
+  const res=[];
+  function io(i){if(i===undefined||i>=TREE.length)return;const l=2*i+1,r=2*i+2;if(type==='inorder'){io(l);res.push(i);io(r);}else if(type==='preorder'){res.push(i);io(l);io(r);}else{io(l);io(r);res.push(i);}}
+  io(0);return res;
+}
+async function animTraversal(type){
+  treeHL=[];renderTree();
+  const order=getOrder(type);
+  for(const idx of order){
+    treeHL.push(idx);renderTree();
+    document.getElementById('trav-order').textContent=type.toUpperCase()+': '+treeHL.map(i=>TREE[i].v).join(' → ');
+    document.getElementById('tree-msg').className='viz-msg msg-ok';
+    document.getElementById('tree-msg').textContent=`Visiting node ${TREE[idx].v} (step ${treeHL.length}/${order.length})`;
+    await new Promise(r=>setTimeout(r,600));
+  }
+  document.getElementById('tree-msg').className='viz-msg msg-ok';
+  document.getElementById('tree-msg').textContent=`${type} complete: [${treeHL.map(i=>TREE[i].v).join(', ')}]. ${type==='inorder'?'Notice: SORTED order!':type==='postorder'?'Notice: Leaves freed first — safe deletion!':'Notice: Root visited first — good for cloning!'}`;
+}
+function resetTreeAnim(){treeHL=[];renderTree();document.getElementById('trav-order').textContent='';document.getElementById('tree-msg').className='viz-msg msg-info';document.getElementById('tree-msg').textContent='Press a traversal button.';}
+document.addEventListener('DOMContentLoaded',renderTree);
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🗂️</div>
+  <div class="rw-name">File System Explorer</div>
+  <div class="rw-desc">Your computer's folder structure is a tree. 'Find all .c files recursively' is a DFS tree traversal. Windows Explorer and Mac Finder display folder trees with expand/collapse operations.</div>
+  <div class="rw-how">🔧 Tree traversal for recursive file search</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🌐</div>
+  <div class="rw-name">HTML/XML Document Object Model</div>
+  <div class="rw-desc">Every webpage is a tree: <html> is root, with <head> and <body> children. JavaScript's document.querySelector() traverses this tree to find and modify elements.</div>
+  <div class="rw-how">🔧 DFS tree traversal for DOM manipulation</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🧮</div>
+  <div class="rw-name">Expression Evaluation</div>
+  <div class="rw-desc">Math compilers parse '3 + 4 × 2' into a binary expression tree. Postorder traversal evaluates leaves first (numbers), then operators — computing the correct result bottom-up.</div>
+  <div class="rw-how">🔧 Postorder traversal for expression evaluation</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📦</div>
+  <div class="rw-name">Huffman Coding (Data Compression)</div>
+  <div class="rw-desc">ZIP and gzip use Huffman Trees to assign shorter bit sequences to more frequent characters. The tree is built bottom-up (postorder-like) and encoded as a preorder sequence in the compressed file.</div>
+  <div class="rw-how">🔧 Tree for optimal prefix-free encoding</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "What is unique about INORDER traversal of a Binary SEARCH Tree?", "opts": ["It visits all nodes at once", "It always produces output in ascending sorted order", "It is the fastest traversal", "It uses less memory"], "ans": 1, "exp": "Inorder = Left \u2192 Root \u2192 Right. By BST property: all left values < root < all right values. Traversing left first gives smallest values, then root, then larger values. Recursively this sorts every subtree. Inorder traversal of any BST always gives elements in ascending order \u2014 essentially performing a tree sort."}, {"q": "Why is POSTORDER traversal the correct order for freeing (deleting) a tree?", "opts": ["It is the fastest", "Postorder deletes children before parents \u2014 you cannot free a parent without first freeing its children (or you lose the pointers to them)", "Postorder is only for sorted trees", "You can delete in any order"], "ans": 1, "exp": "If you free a parent node first, you lose the pointers to its children \u2014 they become orphaned memory leaks. Postorder (L\u2192R\u2192Root) ensures you free the LEFT subtree, then RIGHT subtree, then ONLY THEN the current node. Children are always freed before parents. This is why freeTree uses postorder."}, {"q": "What determines the height of a binary tree, and why does height matter?", "opts": ["The number of nodes", "The insertion order determines height; height = O(log n) for random insertions but O(n) for sorted insertions \u2014 and height determines the cost of search, insert, and delete", "The root's value", "Trees always have height O(1)"], "ans": 1, "exp": "Height = longest path from root to leaf. Random insertions create balanced trees with height O(log n) \u2192 O(log n) search. Sorted insertions create a skewed 'tree' that's really a linked list with height O(n) \u2192 O(n) search. This degradation is why self-balancing trees (AVL, Red-Black) automatically rotate to maintain O(log n) height."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

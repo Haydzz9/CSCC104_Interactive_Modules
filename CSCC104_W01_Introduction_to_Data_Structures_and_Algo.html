@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W01: Introduction to Data Structures & Algorithms</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="#" class="nav-btn" style="opacity:.4;pointer-events:none">← Prev</a>
+<a href="CSCC104_W02_C_Fundamentals_Pointers,_Structs_and_Mem.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W01</span>
+    <h1>Introduction to Data Structures & Algorithms</h1>
+    <p>A data structure organizes data; an algorithm defines steps to process it. Together they determine how fast and how correctly your programs run.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> Choosing the right data structure can make a search 1,000,000× faster. The best programmers choose data structures before they write a single line of code.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🎯 Data Structure Selector</div>
+  <div class="viz-desc">Given a scenario, click the BEST data structure for the job. Learn WHY through instant feedback.</div>
+  <div id="ds-scenario" style="background:#EFF6FF;border-radius:10px;padding:1rem 1.2rem;margin-bottom:1rem;font-size:.95rem;line-height:1.6;min-height:60px"></div>
+  <div id="ds-choices" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;margin-bottom:.8rem"></div>
+  <div class="viz-msg msg-info" id="ds-msg">Choose the best data structure for the scenario above.</div>
+  <div class="ctrl-row">
+    <button class="btn btn-primary" onclick="nextScenario()">Next Scenario ▶</button>
+    <span id="ds-score" style="padding:.45rem .7rem;background:#EFF6FF;border-radius:7px;font-size:.85rem;color:#1E40AF"></span>
+  </div>
+</div>
+<script>
+const scenarios=[
+  {s:"You need to store 1,000,000 student IDs and search for a specific one in milliseconds.",ans:"Hash Table",all:["Array","Linked List","Hash Table","Stack"],why:"Hash Table gives O(1) average lookup — perfect for high-frequency ID searches."},
+  {s:"A browser needs to implement the BACK button — go to the previously visited page.",ans:"Stack",all:["Queue","Stack","Hash Table","Graph"],why:"Stack is LIFO — the last page visited is the first to be returned to on Back."},
+  {s:"A university enrollment system must serve students in the order they registered.",ans:"Queue",all:["Stack","Queue","Tree","Array"],why:"Queue is FIFO — first student to register is first to be processed. Fair and ordered."},
+  {s:"A file system stores folders that can contain sub-folders indefinitely.",ans:"Tree",all:["Array","Stack","Tree","Hash Table"],why:"Trees naturally model hierarchies — parent folders contain child folders recursively."},
+  {s:"A GPS app needs to find the SHORTEST route between two locations on a road network.",ans:"Graph",all:["Array","Queue","Graph","Heap"],why:"Graphs model road networks (nodes = intersections, edges = roads). Dijkstra's algorithm finds shortest paths on graphs."},
+  {s:"A music streaming app needs to get the most-played song instantly at any time.",ans:"Heap",all:["Array","Linked List","Tree","Heap"],why:"Max-Heap maintains the maximum element at the root — O(1) access to the most-played song."},
+];
+let si=0,dsScore=0,dsTotal=0;
+function showScenario(){
+  const sc=scenarios[si];
+  document.getElementById('ds-scenario').innerHTML=`<strong>Scenario ${si+1}/${scenarios.length}:</strong><br>${sc.s}`;
+  document.getElementById('ds-choices').innerHTML=sc.all.map(a=>`<button class="btn btn-outline" onclick="pickDS('${a}')">${a}</button>`).join('');
+  document.getElementById('ds-msg').className='viz-msg msg-info';
+  document.getElementById('ds-msg').textContent='Pick the best data structure for this scenario.';
+  document.getElementById('ds-score').textContent=`Score: ${dsScore}/${dsTotal}`;
+}
+function pickDS(choice){
+  const sc=scenarios[si]; dsTotal++;
+  const btns=document.querySelectorAll('#ds-choices .btn');
+  btns.forEach(b=>{b.disabled=true;if(b.textContent===sc.ans)b.style.background='#22C55E',b.style.color='#fff';});
+  if(choice===sc.ans){dsScore++;document.getElementById('ds-msg').className='viz-msg msg-ok';document.getElementById('ds-msg').textContent='✅ Correct! '+sc.why;}
+  else{document.getElementById('ds-msg').className='viz-msg msg-err';document.getElementById('ds-msg').textContent='❌ '+choice+' is not optimal here. '+sc.why;}
+  document.getElementById('ds-score').textContent=`Score: ${dsScore}/${dsTotal}`;
+}
+function nextScenario(){si=(si+1)%scenarios.length;showScenario();}
+document.addEventListener('DOMContentLoaded',showScenario);
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">📱</div>
+  <div class="rw-name">Social Media Feed</div>
+  <div class="rw-desc">Facebook/Instagram store posts in a linked list and use graphs for friend connections — enabling infinite scroll and friend suggestions.</div>
+  <div class="rw-how">🔧 LinkedList for feed, Graph for social network</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🗺️</div>
+  <div class="rw-name">Google Maps Navigation</div>
+  <div class="rw-desc">Road networks are modeled as weighted graphs. Dijkstra's algorithm finds the shortest route; traffic data updates edge weights in real time.</div>
+  <div class="rw-how">🔧 Graph + Priority Queue (Heap)</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🏦</div>
+  <div class="rw-name">Bank ATM Queue</div>
+  <div class="rw-desc">Customers waiting at an ATM are served in the order they arrived — a textbook First-In-First-Out queue. No one cuts the line!</div>
+  <div class="rw-how">🔧 Queue (FIFO)</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🔍</div>
+  <div class="rw-name">Search Engine Index</div>
+  <div class="rw-desc">Google's inverted index maps each word to a list of web pages containing it. Hash tables enable lightning-fast word lookup across billions of pages.</div>
+  <div class="rw-how">🔧 Hash Table + Linked List</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "What is the primary advantage of choosing the right data structure?", "opts": ["Longer code", "Better performance (speed & memory)", "Easier to type", "More colorful output"], "ans": 1, "exp": "The right data structure can reduce search time from O(n) \u2014 scanning millions of records \u2014 to O(1) with a hash table. This difference is often 1,000,000\u00d7 in real applications."}, {"q": "Which property makes a tree different from a linked list?", "opts": ["Trees are stored in arrays", "Each node can have multiple children", "Trees use pointers", "Trees are sorted"], "ans": 1, "exp": "A linked list node has exactly ONE next pointer (linear). A tree node can have MANY children (hierarchical). This allows trees to model file systems, organization charts, and HTML DOM structures."}, {"q": "A stack is used for browser back button functionality because:", "opts": ["It is the fastest data structure", "It provides LIFO \u2014 last page visited is first recalled", "Browsers require stacks by law", "It uses less memory than other options"], "ans": 1, "exp": "LIFO (Last-In-First-Out) perfectly models page history. You navigate to page A\u2192B\u2192C. Pressing Back returns C\u2192B\u2192A \u2014 exactly what a stack does when you pop elements in reverse order."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

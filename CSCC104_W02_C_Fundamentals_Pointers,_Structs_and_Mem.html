@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W02: C Fundamentals: Pointers, Structs & Memory</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W01_Introduction_to_Data_Structures_and_Algo.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W03_Algorithm_Analysis_Big-O_Complexity.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W02</span>
+    <h1>C Fundamentals: Pointers, Structs & Memory</h1>
+    <p>Pointers are the foundation of every dynamic data structure in C. Understanding how memory addresses work unlocks linked lists, trees, graphs, and beyond.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> Every variable lives at a memory address. A pointer stores that address. * reads the value at the address; & gives you the address. Master this and you master all of DSA in C.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🧠 Memory Diagram Simulator</div>
+  <div class="viz-desc">Simulate pointer operations and visualize what happens in memory.</div>
+  <div class="viz-area" style="flex-direction:column;gap:.8rem;min-height:240px" id="mem-area">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;width:100%">
+      <div>
+        <div style="font-size:.75rem;color:#64748B;margin-bottom:.3rem;font-weight:600">STACK MEMORY</div>
+        <div id="stack-mem" style="display:flex;flex-direction:column;gap:.4rem"></div>
+      </div>
+      <div>
+        <div style="font-size:.75rem;color:#64748B;margin-bottom:.3rem;font-weight:600">HEAP MEMORY (malloc)</div>
+        <div id="heap-mem" style="display:flex;flex-direction:column;gap:.4rem"></div>
+      </div>
+    </div>
+    <div id="ptr-arrow" style="font-size:.85rem;color:#1E40AF;text-align:center;padding:.3rem;background:#DBEAFE;border-radius:6px;width:100%;display:none"></div>
+  </div>
+  <div class="ctrl-row" style="flex-wrap:wrap">
+    <button class="btn btn-primary" onclick="memStep('declare')">1. Declare int x=20</button>
+    <button class="btn btn-secondary" onclick="memStep('pointer')">2. int *ptr=&x</button>
+    <button class="btn btn-warn" onclick="memStep('deref')">3. *ptr = 99</button>
+    <button class="btn btn-outline" onclick="memStep('malloc')">4. malloc(Student)</button>
+    <button class="btn btn-danger" onclick="memStep('free')">5. free(s)</button>
+    <button class="btn btn-outline" onclick="memStep('reset')">↺ Reset</button>
+  </div>
+  <div class="viz-msg msg-info" id="mem-msg">Click the steps above in order to see memory operations.</div>
+</div>
+<script>
+const ADDR={x:'0x7FF0',ptr:'0x7FF8',heap:'0xA100'};
+function memBox(addr,name,val,color){
+  return `<div style="display:flex;align-items:center;gap:.5rem;background:${color||'#EFF6FF'};border:1.5px solid #BFDBFE;border-radius:7px;padding:.4rem .7rem;font-size:.82rem;animation:pop .3s ease">
+    <span style="color:#64748B;font-family:monospace">${addr}</span>
+    <span style="font-weight:700;color:#1E40AF;min-width:40px">${name}</span>
+    <span style="font-family:monospace;color:#0F172A">${val}</span>
+  </div>`;
+}
+function memStep(step){
+  const sm=document.getElementById('stack-mem');
+  const hm=document.getElementById('heap-mem');
+  const msg=document.getElementById('mem-msg');
+  const arr=document.getElementById('ptr-arrow');
+  if(step==='reset'){sm.innerHTML='';hm.innerHTML='';arr.style.display='none';msg.className='viz-msg msg-info';msg.textContent='Click the steps above in order.';return;}
+  if(step==='declare'){sm.innerHTML=memBox(ADDR.x,'x','20','#EFF6FF');msg.className='viz-msg msg-ok';msg.textContent='Variable x declared on stack at address '+ADDR.x+'. Value: 20.';}
+  if(step==='pointer'){sm.innerHTML=memBox(ADDR.x,'x','20','#EFF6FF')+memBox(ADDR.ptr,'ptr',ADDR.x,'#F0FDF4');arr.style.display='block';arr.textContent='ptr ('+ADDR.ptr+') → points to → x ('+ADDR.x+')   dereference: *ptr = 20';msg.className='viz-msg msg-ok';msg.textContent='ptr holds the ADDRESS of x. *ptr reads the value 20. &x gives the address '+ADDR.x+'.';}
+  if(step==='deref'){sm.innerHTML=memBox(ADDR.x,'x','99 ✏️','#FEF9C3')+memBox(ADDR.ptr,'ptr',ADDR.x,'#F0FDF4');arr.style.display='block';arr.textContent='*ptr = 99 → modified x through its address!';msg.className='viz-msg msg-ok';msg.textContent='*ptr = 99 writes 99 to the address stored in ptr — which IS x. So x is now 99!';}
+  if(step==='malloc'){hm.innerHTML=memBox(ADDR.heap,'Student*','id:0 name:... gwa:0','#FFF7ED');msg.className='viz-msg msg-ok';msg.textContent='malloc(sizeof(Student)) reserves '+68+' bytes on the heap. Returns address '+ADDR.heap+'. Must be freed!';}
+  if(step==='free'){hm.innerHTML='<div style="padding:.5rem;color:#EF4444;font-family:monospace;font-size:.85rem">0xA100: [FREED — memory returned to OS]</div>';msg.className='viz-msg msg-err';msg.textContent='free() releases the heap memory. The pointer still exists but now points to freed memory — DANGLING POINTER risk!';}
+}
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🎮</div>
+  <div class="rw-name">Game Engines (Unity/Unreal)</div>
+  <div class="rw-desc">Game objects (characters, bullets, items) are created with dynamic memory at runtime and destroyed when no longer needed. C++ new/delete (equivalent to C malloc/free) powers this.</div>
+  <div class="rw-how">🔧 malloc/free for dynamic object creation</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🏥</div>
+  <div class="rw-name">Hospital Patient Records</div>
+  <div class="rw-desc">Patient data (name, age, diagnosis, medications) is modeled as a struct. Pointers link patients to their doctors, test results, and appointment queues dynamically.</div>
+  <div class="rw-how">🔧 struct + pointer-linked records</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🌐</div>
+  <div class="rw-name">Web Server Request Handling</div>
+  <div class="rw-desc">Each incoming HTTP request is allocated memory dynamically. The server processes it, sends the response, and frees the memory — handling thousands of requests per second.</div>
+  <div class="rw-how">🔧 Dynamic memory allocation per request</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📊</div>
+  <div class="rw-name">Spreadsheet Software (Excel)</div>
+  <div class="rw-desc">Each cell contains a struct with value, formula, format. Pointer arrays link cells to their dependencies — changing one cell triggers updates through the pointer chain.</div>
+  <div class="rw-how">🔧 struct arrays + pointer relationships</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "What does the * operator do when applied to a pointer variable?", "opts": ["Takes the address of a variable", "Reads the VALUE stored at the address the pointer holds", "Multiplies two numbers", "Creates a new pointer"], "ans": 1, "exp": "* is the dereference operator. If ptr = &x (ptr holds x's address), then *ptr reads the value at that address \u2014 which is x's value. Think of ptr as a house address and *ptr as opening the front door."}, {"q": "What is a memory leak in C?", "opts": ["The computer's RAM overheating", "Calling malloc() without a matching free(), leaving memory permanently allocated", "Using pointers incorrectly", "Declaring too many variables"], "ans": 1, "exp": "Every malloc() must have exactly one matching free(). If you lose the pointer (overwrite it or let it go out of scope), you can never free that memory. Over time, memory leaks cause programs to slow down and eventually crash \u2014 a critical bug in long-running systems."}, {"q": "Why do we use -> instead of . when accessing a struct member through a pointer?", "opts": ["They are interchangeable", "-> is used with pointers; . is used with direct struct variables", "-> is faster", "It is just a style preference"], "ans": 1, "exp": "s.name accesses name directly in struct variable s. p->name is shorthand for (*p).name \u2014 first dereference the pointer p, then access name. Using -> makes pointer-based code cleaner and more readable."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

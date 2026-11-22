@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W03: Algorithm Analysis: Big-O Complexity</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W02_C_Fundamentals_Pointers,_Structs_and_Mem.html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W04_Arrays_and_Strings_in_C.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W03</span>
+    <h1>Algorithm Analysis: Big-O Complexity</h1>
+    <p>Big-O notation lets us predict how an algorithm's performance scales as data grows — without running it. It's the single most important tool for comparing algorithms.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> O(1) < O(log n) < O(n) < O(n log n) < O(n²) < O(2ⁿ). At n = 1,000,000: O(n) does 1M operations; O(n²) does 1,000,000,000,000 — a billion times more.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">📈 Complexity Growth Visualizer</div>
+  <div class="viz-desc">Set the input size n and see how many operations each complexity class requires.</div>
+  <div style="margin-bottom:.8rem">
+    <label style="font-size:.85rem;color:#64748B">n = <span id="n-val">100</span></label><br>
+    <input type="range" min="1" max="30" value="10" id="n-slider" oninput="updateChart()" style="width:100%;margin-top:.3rem">
+  </div>
+  <div id="complexity-bars" style="display:flex;flex-direction:column;gap:.4rem"></div>
+  <div style="margin-top:.8rem;font-size:.78rem;color:#64748B">⚠️ Values capped at 10¹² for display. Real values can be astronomically larger.</div>
+</div>
+<script>
+const complexities=[
+  {name:'O(1)',color:'#22C55E',fn:n=>1},
+  {name:'O(log n)',color:'#14B8A6',fn:n=>Math.log2(n)},
+  {name:'O(n)',color:'#3B82F6',fn:n=>n},
+  {name:'O(n log n)',color:'#8B5CF6',fn:n=>n*Math.log2(n)},
+  {name:'O(n²)',color:'#F59E0B',fn:n=>n*n},
+  {name:'O(2ⁿ)',color:'#EF4444',fn:n=>Math.min(Math.pow(2,n),1e12)},
+];
+function fmt(v){
+  if(v>=1e12)return '>1 trillion';
+  if(v>=1e9)return (v/1e9).toFixed(1)+'B';
+  if(v>=1e6)return (v/1e6).toFixed(1)+'M';
+  if(v>=1e3)return (v/1e3).toFixed(1)+'K';
+  return Math.round(v).toLocaleString();
+}
+function updateChart(){
+  const n=parseInt(document.getElementById('n-slider').value);
+  const actualN=Math.pow(2,n);
+  document.getElementById('n-val').textContent=Math.round(actualN).toLocaleString();
+  const vals=complexities.map(c=>c.fn(actualN));
+  const max=Math.max(...vals.filter(v=>v<1e12))||1;
+  document.getElementById('complexity-bars').innerHTML=complexities.map((c,i)=>{
+    const v=vals[i];
+    const pct=Math.min(v/max*100,100);
+    return `<div style="display:flex;align-items:center;gap:.5rem">
+      <div style="width:80px;font-size:.8rem;font-weight:600;color:${c.color}">${c.name}</div>
+      <div style="flex:1;background:#F1F5F9;border-radius:4px;height:22px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${c.color};border-radius:4px;transition:.3s;min-width:${v>0?3:0}px"></div>
+      </div>
+      <div style="width:90px;font-size:.78rem;text-align:right;color:#334155;font-family:monospace">${fmt(v)} ops</div>
+    </div>`;
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',updateChart);
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🔍</div>
+  <div class="rw-name">Search Engines</div>
+  <div class="rw-desc">Google processes 8.5 billion searches per day. Their algorithms must be O(1) or O(log n) for core lookups — O(n) across billions of pages would be impossibly slow.</div>
+  <div class="rw-how">🔧 O(1) hash lookup, O(log n) index search</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🧬</div>
+  <div class="rw-name">DNA Sequence Matching</div>
+  <div class="rw-desc">Comparing a new DNA sequence against a database of billions uses hashing and divide-and-conquer to achieve O(n log n) instead of O(n²) brute-force, making it feasible in minutes not years.</div>
+  <div class="rw-how">🔧 O(n log n) string matching algorithms</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">💳</div>
+  <div class="rw-name">Credit Card Fraud Detection</div>
+  <div class="rw-desc">Banks analyze millions of transactions in real time. O(n²) comparison between all pairs is impossible. ML models use O(n log n) tree structures to flag anomalies instantly.</div>
+  <div class="rw-how">🔧 O(log n) decision trees</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📦</div>
+  <div class="rw-name">Amazon Delivery Routing</div>
+  <div class="rw-desc">Finding optimal delivery routes for thousands of packages uses O(n log n) greedy algorithms and approximations — exact O(n!) solutions would take longer than the age of the universe.</div>
+  <div class="rw-how">🔧 O(n log n) approximation algorithms</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "If an algorithm is O(n\u00b2) and n doubles from 1000 to 2000, approximately how much slower does it become?", "opts": ["2\u00d7 slower", "4\u00d7 slower", "8\u00d7 slower", "The same speed"], "ans": 1, "exp": "O(n\u00b2) grows quadratically. If n doubles (\u00d72), the operations quadruple (2\u00b2 = 4). So n=1000 does ~1,000,000 ops; n=2000 does ~4,000,000 ops \u2014 exactly 4\u00d7 slower. This is why O(n\u00b2) algorithms are unacceptable for large datasets."}, {"q": "Why do we drop constants in Big-O? For example, why is O(5n) just written as O(n)?", "opts": ["Mathematicians are lazy", "Constants become insignificant as n approaches infinity; only growth rate matters", "O(5n) does not exist", "Computers run code 5\u00d7 faster than expected"], "ans": 1, "exp": "At n=10 million, 5n vs n is a 5\u00d7 difference. But O(n\u00b2) vs O(n) is a 10-million\u00d7 difference. Big-O measures growth RATE \u2014 how performance scales \u2014 not the exact operation count. Constants are irrelevant when comparing fundamentally different algorithms."}, {"q": "Binary search on 1,000,000 sorted elements requires at most how many comparisons?", "opts": ["1,000,000", "500,000", "20", "1"], "ans": 2, "exp": "Binary search is O(log\u2082 n). log\u2082(1,000,000) \u2248 20. Each comparison eliminates HALF the remaining elements. After 20 comparisons, at most 1 element remains. This is why sorted databases can serve billions of queries per second."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>

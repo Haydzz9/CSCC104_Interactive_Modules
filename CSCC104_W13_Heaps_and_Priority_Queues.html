@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CSCC 104 — W13: Heaps and Priority Queues</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1F3864;--mid:#2E75B6;--teal:#17A589;--mint:#D1F2EB;
+  --ocean:#065A82;--gold:#F59E0B;--green:#22C55E;--red:#EF4444;
+  --bg:#F0F9FF;--card:#fff;--dark:#1E293B;--gray:#64748B;
+  --code-bg:#0D1117;--code-fg:#E6EDF3;
+}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--dark)}
+header{background:var(--navy);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #0006}
+.hdr-inner{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1.5rem}
+.hdr-title{font-size:1.05rem;font-weight:700}
+.hdr-sub{font-size:.8rem;color:#76D7C4;margin-top:.1rem}
+.nav-btns{display:flex;gap:.5rem}
+.nav-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);
+  color:#fff;padding:.35rem .9rem;border-radius:6px;cursor:pointer;font-size:.85rem;
+  text-decoration:none;transition:.2s}
+.nav-btn:hover{background:var(--teal);border-color:var(--teal)}
+.nav-btn.home{background:var(--teal);border-color:var(--teal)}
+main{max-width:1100px;margin:0 auto;padding:1.5rem}
+section{margin-bottom:2rem}
+h2{font-size:1.4rem;color:var(--navy);margin-bottom:1rem;
+  display:flex;align-items:center;gap:.5rem}
+h2 .badge{background:var(--teal);color:#fff;font-size:.7rem;padding:.2rem .5rem;
+  border-radius:4px;font-weight:600}
+.hero{background:var(--navy);color:#fff;border-radius:16px;padding:2rem;
+  margin-bottom:2rem;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;right:-60px;top:-60px;width:240px;height:240px;
+  background:rgba(23,165,137,.2);border-radius:50%;pointer-events:none}
+.hero h1{font-size:1.8rem;margin-bottom:.5rem}
+.hero .week-tag{display:inline-block;background:var(--teal);color:#fff;
+  font-size:.75rem;font-weight:700;padding:.2rem .6rem;border-radius:4px;margin-bottom:.75rem}
+.hero p{color:#94D2E8;line-height:1.6;max-width:700px}
+.hero .key-idea{background:rgba(255,255,255,.1);border-left:3px solid var(--teal);
+  padding:.75rem 1rem;border-radius:0 8px 8px 0;margin-top:1rem;font-size:.95rem}
+
+/* Visualizer */
+.viz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.viz-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:.5rem}
+.viz-desc{font-size:.85rem;color:var(--gray);margin-bottom:1rem}
+.viz-area{min-height:200px;border:2px dashed #CBD5E1;border-radius:10px;
+  padding:1rem;display:flex;align-items:center;justify-content:center;
+  background:#F8FAFC;position:relative;overflow:hidden}
+.ctrl-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:7px;cursor:pointer;
+  font-size:.85rem;font-weight:600;transition:.15s}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-primary:hover{background:#14907A}
+.btn-secondary{background:var(--mid);color:#fff}
+.btn-secondary:hover{background:#1F5F9A}
+.btn-warn{background:var(--gold);color:#fff}
+.btn-warn:hover{background:#D97706}
+.btn-danger{background:var(--red);color:#fff}
+.btn-danger:hover{background:#DC2626}
+.btn-outline{background:#fff;border:2px solid var(--mid);color:var(--mid)}
+.btn-outline:hover{background:var(--mid);color:#fff}
+input.viz-input{border:2px solid #CBD5E1;border-radius:7px;padding:.4rem .7rem;
+  font-size:.9rem;width:90px;outline:none}
+input.viz-input:focus{border-color:var(--teal)}
+.viz-msg{text-align:center;padding:.5rem 1rem;border-radius:7px;margin-top:.7rem;
+  font-size:.85rem;font-weight:600;min-height:2rem}
+.msg-ok{background:#D1FAE5;color:#065F46}
+.msg-err{background:#FEE2E2;color:#991B1B}
+.msg-info{background:#DBEAFE;color:#1E40AF}
+
+/* Real World */
+.rw-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.rw-card{background:#fff;border-radius:12px;padding:1.2rem;
+  box-shadow:0 1px 6px #0001;border-top:3px solid var(--teal);transition:.2s}
+.rw-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px #0002}
+.rw-icon{font-size:2rem;margin-bottom:.5rem}
+.rw-name{font-weight:700;color:var(--navy);margin-bottom:.3rem}
+.rw-desc{font-size:.82rem;color:var(--gray);line-height:1.5;margin-bottom:.5rem}
+.rw-how{font-size:.78rem;background:var(--mint);color:#065F46;
+  padding:.3rem .6rem;border-radius:5px;display:inline-block}
+
+/* Quiz */
+.quiz-card{background:#fff;border-radius:16px;padding:1.5rem;
+  box-shadow:0 2px 12px #0001;border:1px solid #e2e8f0}
+.quiz-progress{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.q-dot{width:28px;height:6px;border-radius:3px;background:#E2E8F0;transition:.3s}
+.q-dot.active{background:var(--teal)}
+.q-dot.done{background:var(--green)}
+.q-text{font-size:1rem;font-weight:600;color:var(--dark);margin-bottom:1rem;line-height:1.5}
+.q-options{display:flex;flex-direction:column;gap:.5rem}
+.q-opt{padding:.7rem 1rem;border:2px solid #E2E8F0;border-radius:8px;
+  cursor:pointer;font-size:.9rem;transition:.15s;background:#fff}
+.q-opt:hover{border-color:var(--teal);background:#F0FDFA}
+.q-opt.correct{border-color:var(--green);background:#D1FAE5;color:#065F46;font-weight:600}
+.q-opt.wrong{border-color:var(--red);background:#FEE2E2;color:#991B1B;font-weight:600}
+.q-explain{margin-top:.8rem;padding:.7rem 1rem;background:#DBEAFE;
+  border-radius:8px;font-size:.85rem;color:#1E40AF;line-height:1.5;display:none}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:1.2rem}
+.score-box{background:var(--navy);color:#fff;border-radius:12px;padding:1.5rem;
+  text-align:center;display:none}
+.score-num{font-size:3rem;font-weight:800;color:var(--teal)}
+.score-label{color:#94D2E8;margin-top:.3rem}
+.score-msg{margin-top:.8rem;font-size:.95rem;color:#CBD5E1}
+
+/* Code box */
+.code-box{background:var(--code-bg);border-radius:10px;padding:1rem 1.2rem;
+  font-family:'Courier New',monospace;font-size:.82rem;color:var(--code-fg);
+  overflow-x:auto;margin:.5rem 0;white-space:pre;line-height:1.55}
+
+/* Responsive */
+@media(max-width:700px){
+  .rw-grid{grid-template-columns:1fr}
+  .hero h1{font-size:1.4rem}
+}
+
+/* Animations */
+@keyframes pop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes slide-in{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+@keyframes flash{0%,100%{background:var(--mint)}50%{background:#A7F3D0}}
+.pop{animation:pop .3s ease forwards}
+.slide{animation:slide-in .3s ease forwards}
+</style>
+</head>
+<body>
+<header>
+  <div class="hdr-inner">
+    <div>
+      <div class="hdr-title">CSCC 104 — Data Structures and Algorithms</div>
+      <div class="hdr-sub">DMMMSU-SLUC · College of Computer Science · Haydee D. Limson, MIS</div>
+    </div>
+    <div class="nav-btns">
+<a href="index.html" class="nav-btn home">🏠 All Topics</a>
+<a href="CSCC104_W12_Binary_Search_Trees_(BST).html" class="nav-btn" >← Prev</a>
+<a href="CSCC104_W14_Sorting_Algorithms.html" class="nav-btn" >Next →</a></div>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <span class="week-tag">W13</span>
+    <h1>Heaps and Priority Queues</h1>
+    <p>A heap is a complete binary tree stored in an array. Min-Heap: parent ≤ children — minimum always at root. All insert and extract operations are O(log n) due to the tree height.</p>
+    <div class="key-idea">💡 <strong>Key Idea:</strong> Heap indices: parent(i) = (i-1)/2, left(i) = 2i+1, right(i) = 2i+2. This formula maps a complete binary tree perfectly onto an array — NO pointers needed! This is more memory-efficient than BST nodes.</div>
+  </div>
+
+  <section>
+    <h2>🎮 Interactive Visualizer <span class="badge">Try It!</span></h2>
+    <div class="viz-card">
+  <div class="viz-title">🏆 MinHeap Visualizer</div>
+  <div class="viz-desc">Insert values and watch siftUp restore the heap property. Extract-Min shows siftDown.</div>
+  <div style="display:grid;grid-template-columns:1fr auto;gap:1rem">
+    <div>
+      <div style="font-size:.75rem;color:#64748B;margin-bottom:.3rem">Heap as ARRAY:</div>
+      <div id="heap-arr" style="display:flex;gap:3px;flex-wrap:wrap;margin-bottom:.7rem"></div>
+      <div style="font-size:.75rem;color:#64748B;margin-bottom:.3rem">Heap as TREE:</div>
+      <svg id="heap-tree" width="420" height="180" style="max-width:100%;background:#0F172A;border-radius:8px"></svg>
+    </div>
+    <div style="background:#1E293B;border-radius:10px;padding:.8rem;min-width:160px">
+      <div style="color:#F59E0B;font-size:.8rem;font-weight:700;margin-bottom:.5rem">Honor Roll</div>
+      <div id="honor-roll" style="font-size:.78rem;color:#CBD5E1;display:flex;flex-direction:column;gap:.2rem"></div>
+    </div>
+  </div>
+  <div class="ctrl-row">
+    <input type="number" class="viz-input" id="heap-val" placeholder="GWA (1.0-4.0)" step=".05" min="1.0" max="4.0" value="1.75">
+    <button class="btn btn-primary" onclick="heapInsert()">Insert</button>
+    <button class="btn btn-danger" onclick="heapExtract()">Extract Min</button>
+    <button class="btn btn-outline" onclick="heapClear()">Clear</button>
+  </div>
+  <div class="viz-msg msg-info" id="heap-msg">Insert GWA values. Minimum always stays at root!</div>
+</div>
+<script>
+let heap=[];
+const NAMES=['Maria','Juan','Ana','Pedro','Rosa','Luis','Luz','Carlo'];
+let nameIdx=0;
+function renderHeap(highlight=[]){
+  const arr=document.getElementById('heap-arr');
+  arr.innerHTML=heap.map((v,i)=>{
+    const hl=highlight.includes(i);
+    return `<div style="background:${hl?'#F59E0B':i===0?'#22C55E':'#2E75B6'};color:#fff;border-radius:6px;padding:.25rem .4rem;text-align:center;font-size:.78rem;font-weight:700;animation:pop .2s">
+      <div style="opacity:.6;font-size:.6rem">[${i}]</div>${v.gwa.toFixed(2)}
+    </div>`;
+  }).join('');
+  const svg=document.getElementById('heap-tree');
+  const maxH=heap.length>7?3:2;
+  const positions=[];
+  const spacing=[0,280,140,70,35];
+  heap.forEach((v,i)=>{
+    const level=Math.floor(Math.log2(i+1));
+    const posInLevel=i-((1<<level)-1);
+    const totalInLevel=1<<level;
+    const x=20+(posInLevel+.5)*(380/totalInLevel);
+    const y=30+level*55;
+    positions.push({x,y,i});
+  });
+  let html='';
+  positions.forEach(({x,y,i})=>{
+    const pi=Math.floor((i-1)/2);
+    if(i>0&&positions[pi]){html+=`<line x1="${positions[pi].x}" y1="${positions[pi].y}" x2="${x}" y2="${y}" stroke="#334155" stroke-width="2"/>`;}
+  });
+  positions.forEach(({x,y,i})=>{
+    const hl=highlight.includes(i);
+    const fill=hl?'#F59E0B':i===0?'#22C55E':'#1F3864';
+    html+=`<circle cx="${x}" cy="${y}" r="20" fill="${fill}" stroke="${hl?'#D97706':'#2E75B6'}" stroke-width="2"/>
+    <text x="${x}" y="${y+4}" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">${heap[i].gwa.toFixed(2)}</text>`;
+  });
+  if(heap.length===0)html='<text x="210" y="90" text-anchor="middle" fill="#475569">Empty heap</text>';
+  svg.innerHTML=html;
+  document.getElementById('honor-roll').innerHTML=heap.slice(0,5).map((h,i)=>`<div style="animation:slide .2s">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'  '} ${h.name} ${h.gwa.toFixed(2)}</div>`).join('');
+}
+function siftUp(arr,i){
+  while(i>0){const p=Math.floor((i-1)/2);if(arr[p].gwa>arr[i].gwa){[arr[p],arr[i]]=[arr[i],arr[p]];i=p;}else break;}
+}
+function siftDown(arr,i){
+  while(true){let s=i,l=2*i+1,r=2*i+2;
+    if(l<arr.length&&arr[l].gwa<arr[s].gwa)s=l;
+    if(r<arr.length&&arr[r].gwa<arr[s].gwa)s=r;
+    if(s===i)break;[arr[s],arr[i]]=[arr[i],arr[s]];i=s;}
+}
+function heapInsert(){
+  if(heap.length>=8){document.getElementById('heap-msg').className='viz-msg msg-err';document.getElementById('heap-msg').textContent='Heap full (max 8)!';return;}
+  const gwa=parseFloat(document.getElementById('heap-val').value)||1.75;
+  const name=NAMES[nameIdx++%NAMES.length];
+  heap.push({gwa,name});
+  const insertIdx=heap.length-1;
+  siftUp(heap,insertIdx);
+  renderHeap([0]);
+  document.getElementById('heap-msg').className='viz-msg msg-ok';
+  document.getElementById('heap-msg').textContent=`Inserted ${name} (GWA: ${gwa.toFixed(2)}). SiftUp restores heap. Root (min GWA): ${heap[0].gwa.toFixed(2)} — always the best student!`;
+}
+function heapExtract(){
+  if(heap.length===0){document.getElementById('heap-msg').className='viz-msg msg-err';document.getElementById('heap-msg').textContent='Heap is empty!';return;}
+  const best=heap[0];heap[0]=heap[heap.length-1];heap.pop();siftDown(heap,0);
+  renderHeap([0]);
+  document.getElementById('heap-msg').className='viz-msg msg-ok';
+  document.getElementById('heap-msg').textContent=`Extracted ${best.name} (GWA: ${best.gwa.toFixed(2)}) — the top honor student! SiftDown restores heap. New root: ${heap[0]?.gwa.toFixed(2)||'(empty)'}`;
+}
+function heapClear(){heap=[];nameIdx=0;renderHeap();document.getElementById('heap-msg').className='viz-msg msg-info';document.getElementById('heap-msg').textContent='Heap cleared!';}
+document.addEventListener('DOMContentLoaded',()=>{[1.25,1.5,1.75,2.0,1.9].forEach((g,i)=>{heap.push({gwa:g,name:NAMES[i]});siftUp(heap,heap.length-1);});renderHeap([0]);});
+</script>
+  </section>
+
+  <section>
+    <h2>🌍 Real-World Applications</h2>
+    <div class="rw-grid"><div class="rw-card">
+  <div class="rw-icon">🚑</div>
+  <div class="rw-name">Hospital Emergency Triage</div>
+  <div class="rw-desc">Patients are prioritized by severity (not arrival time). A min-heap ensures the most critical patient is always at the top. Inserting a new critical patient is O(log n) — fast even in emergencies.</div>
+  <div class="rw-how">🔧 Min-heap for priority-based patient queue</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🖥️</div>
+  <div class="rw-name">CPU Task Scheduler</div>
+  <div class="rw-desc">Operating systems (Linux CFS scheduler) use a Red-Black tree (heap-like) to prioritize processes by 'virtual runtime.' The process with the least CPU time is always next — O(log n) scheduling decision.</div>
+  <div class="rw-how">🔧 Heap-based O(log n) process selection</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">📡</div>
+  <div class="rw-name">Dijkstra's Shortest Path</div>
+  <div class="rw-desc">Dijkstra's algorithm uses a min-heap (priority queue) to always expand the unvisited node with the smallest known distance. Without a heap, each expansion is O(n); with a heap it's O(log n) — critical for Google Maps.</div>
+  <div class="rw-how">🔧 Min-heap for O(log n) minimum distance extraction</div>
+</div>
+<div class="rw-card">
+  <div class="rw-icon">🎯</div>
+  <div class="rw-name">Top-K Problems</div>
+  <div class="rw-desc">'Find the 10 most popular videos on YouTube right now' — a min-heap of size 10. For each new video, if it's more popular than the min, replace and siftUp. Final heap contains the top 10 in O(n log k).</div>
+  <div class="rw-how">🔧 Fixed-size heap for top-K extraction</div>
+</div></div>
+  </section>
+
+  <section>
+    <h2>✅ Quick Quiz <span class="badge">3 Questions</span></h2>
+    <div class="quiz-card">
+      <div class="quiz-progress" id="qprog"></div>
+      <div id="quiz-body"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+const QUIZ=[{"q": "In a min-heap stored in array H, what is the parent of the node at index 7?", "opts": ["Index 3", "Index 6", "Index 4", "Index 14"], "ans": 0, "exp": "Parent formula: (i-1)/2 = (7-1)/2 = 3. Left child of 3: 2\u00d73+1 = 7. Right child of 3: 2\u00d73+2 = 8. This array formula maps a complete binary tree exactly \u2014 no pointer overhead. Always: parent(i)=(i-1)/2, left(i)=2i+1, right(i)=2i+2."}, {"q": "What happens after extracting the minimum from a min-heap?", "opts": ["The second element becomes root", "The last element is moved to root position, then siftDown restores the heap property", "The heap is rebuilt from scratch", "The heap breaks permanently"], "ans": 1, "exp": "Extract-Min: (1) Save root (minimum). (2) Move LAST element to root position. (3) Reduce size by 1. (4) SiftDown: compare root with children, swap with smaller child, repeat until heap property restored. The last element was at the bottom, likely too large for root \u2014 siftDown pushes it down to its correct level. O(log n) = tree height."}, {"q": "Why is a heap always O(log n) for insert and extract \u2014 no matter how many elements there are?", "opts": ["Heaps have a constant number of elements", "Heaps are always complete binary trees, so height = floor(log\u2082 n) \u2014 siftUp/siftDown traverse at most this many levels", "Heaps use hash tables internally", "The heap property eliminates most comparisons"], "ans": 1, "exp": "A heap is a COMPLETE binary tree (filled level by level). For n elements: height = floor(log\u2082 n). SiftUp (insert) and siftDown (extract) move at most height levels. At n=1,000,000: height \u2248 20. Insert or extract always \u2264 20 comparisons. This guaranteed O(log n) makes heaps ideal for priority queues used in scheduling and shortest-path algorithms."}];
+let qi=0,score=0,answered=false;
+
+function buildProg(){
+  const p=document.getElementById('qprog');
+  p.innerHTML=QUIZ.map((_,i)=>`<div class="q-dot ${i<qi?'done':i===qi?'active':''}" id="dot${i}"></div>`).join('');
+}
+
+function showQ(){
+  if(qi>=QUIZ.length){showScore();return;}
+  const q=QUIZ[qi]; answered=false;
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="q-text">${qi+1}. ${q.q}</div>
+    <div class="q-options">${q.opts.map((o,i)=>`
+      <div class="q-opt" onclick="answer(${i})">${o}</div>`).join('')}
+    </div>
+    <div class="q-explain" id="qexp">${q.exp}</div>
+    <div class="quiz-nav">
+      <div style="font-size:.85rem;color:#64748B">Question ${qi+1} of ${QUIZ.length}</div>
+      <button class="btn btn-primary" id="qnext" onclick="nextQ()" style="display:none">Next →</button>
+    </div>`;
+  buildProg();
+}
+
+function answer(i){
+  if(answered)return; answered=true;
+  const q=QUIZ[qi];
+  const opts=document.querySelectorAll('.q-opt');
+  opts[q.ans].classList.add('correct');
+  if(i===q.ans){score++;}else{opts[i].classList.add('wrong');}
+  document.getElementById('qexp').style.display='block';
+  document.getElementById('qnext').style.display='inline-block';
+}
+
+function nextQ(){
+  document.getElementById('dot'+qi)?.classList.add('done');
+  qi++;
+  showQ();
+}
+
+function showScore(){
+  const pct=Math.round(score/QUIZ.length*100);
+  const msg=pct===100?'🎉 Perfect! Outstanding mastery!':pct>=67?'👍 Good work! Review the missed items.':'📚 Keep studying — revisit the concept slides.';
+  document.getElementById('quiz-body').innerHTML=`
+    <div class="score-box" style="display:block">
+      <div class="score-num">${score}/${QUIZ.length}</div>
+      <div class="score-label">Score: ${pct}%</div>
+      <div class="score-msg">${msg}</div>
+      <button class="btn btn-primary" onclick="qi=0;score=0;showQ()" style="margin-top:1rem">🔁 Try Again</button>
+    </div>`;
+  buildProg();
+}
+
+document.addEventListener('DOMContentLoaded',showQ);
+</script>
+
+</body>
+</html>
